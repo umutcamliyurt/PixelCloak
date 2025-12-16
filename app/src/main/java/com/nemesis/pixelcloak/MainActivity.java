@@ -17,6 +17,8 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -42,7 +44,6 @@ import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -62,8 +63,6 @@ public class MainActivity extends AppCompatActivity {
     private Bitmap lastBitmap;
 
     private final SecureRandom secureRandom = new SecureRandom();
-    private final Random sysRand = new Random();
-
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private Future<?> runningTask = null;
     private final AtomicBoolean isCancelled = new AtomicBoolean(false);
@@ -238,18 +237,31 @@ public class MainActivity extends AppCompatActivity {
 
     private void showEmojiPicker() {
         final String[] emojis = new String[]{
-               "😈", "😶","😐","😁","😂","😎","🤖","👽","😡","😱","🥶","🤡","💀","🐵","🐱","🐸"
+                "😈","😶","😐","😑","😁","😂","😎","🤖","👽","😡","😱","🥶","🤡","💀",
+                "🙂","🙃","😉","😊","😇","🥰","😍","🤩","😘","😗","😙","😚","😋","😛",
+                "😜","🤪","😝","🤑","🤗","🤭","🤫","🤔","🤐","🤨","😏","😒","🙄","😬",
+                "🤥","😌","😔","😪","🤤","😴","😷","🤒","🤕","🤧","🥵","🥴","😵",
+                "🐵","🐱","🐸","🐲","👹","🐻","🦊","🐯","🦁","🤠","🥳",
+                "🤓","🧐"
         };
+
+        GridView gridView = new GridView(this);
+        gridView.setNumColumns(6);
+        gridView.setAdapter(new ArrayAdapter<String>(this, R.layout.item_emoji, R.id.emoji_text, emojis));
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Pick Emoji");
+        builder.setView(gridView);
 
-        builder.setItems(emojis, (dialog, which) -> {
-            selectedEmoji = emojis[which];
+        AlertDialog dialog = builder.create();
+
+        gridView.setOnItemClickListener((parent, view, position, id) -> {
+            selectedEmoji = emojis[position];
             Toast.makeText(this, "Emoji selected: " + selectedEmoji, Toast.LENGTH_SHORT).show();
+            dialog.dismiss();
         });
 
-        builder.show();
+        dialog.show();
     }
 
     private String generateRandomNumericFilename() {
